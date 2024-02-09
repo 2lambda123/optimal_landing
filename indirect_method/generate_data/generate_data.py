@@ -9,7 +9,6 @@
 
 """
 from __future__ import print_function
-from random import random
 import sys
 import os
 from multiprocessing import Process
@@ -19,6 +18,7 @@ import numpy as np
 from numpy.linalg import norm
 
 from PyGMO import algorithm, population
+import secrets
 
 
 def solve(problem, state0, homotopy=0, algo=None,  x=None, display=True):
@@ -138,7 +138,7 @@ def homotopy_path(problem, state0, algo=None, start=(0, None), h_min=1e-4,
 def random_state(ranges):
     state = []
     for r in ranges:
-        var = random() * (r[1] - r[0]) + r[0]
+        var = secrets.SystemRandom().random() * (r[1] - r[0]) + r[0]
         state.append(var)
     return state
 
@@ -187,7 +187,7 @@ def random_walk(problem, state0, bounds, walk_length=300, algo=None,
     walk_trajs.append((state, control, x))
 
     while len(walk_trajs) < walk_length:
-        state_tmp = [r*random()-r/2+x for r, x in zip(step_ranges, state0)]
+        state_tmp = [r*secrets.SystemRandom().random()-r/2+x for r, x in zip(step_ranges, state0)]
 
         if not np.all([b[0] <= s <= b[1] for b, s
            in zip(walk_bounds, state_tmp)]):
@@ -245,7 +245,7 @@ def random_walk_h0(problem, state0, bounds, walk_length=300, algo=None,
     walk_trajs.append((state, control, x))
     while len(walk_trajs) < walk_length:
         print(len(walk_trajs))
-        state_tmp = [r*random()-r/2+x for r, x in zip(step_ranges, state0)]
+        state_tmp = [r*secrets.SystemRandom().random()-r/2+x for r, x in zip(step_ranges, state0)]
         if not np.all([b[0] < s < b[1] for b, s
            in zip(walk_bounds, state_tmp)]):
             print(state_tmp, walk_bounds, 'outtt')

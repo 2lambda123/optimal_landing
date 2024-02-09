@@ -15,6 +15,7 @@ from numpy import linspace, vstack, hstack
 from copy import deepcopy
 import sys
 import numpy as np
+import secrets
 
 class tv_landing(base):
     def __init__(
@@ -393,7 +394,6 @@ class tv_landing(base):
 
 if __name__ == "__main__":
     from PyGMO import *
-    from random import random
     algo = algorithm.snopt(200, opt_tol=1e-5, feas_tol=1e-5)
     #algo = algorithm.scipy_slsqp(max_iter = 1000,acc = 1E-8,epsilon = 1.49e-08, screen_output = True)
     algo.screen_output = False
@@ -411,11 +411,11 @@ if __name__ == "__main__":
     # Attempting to solve the QC problem
     n_attempts = 50
     for i in range(1, n_attempts + 1):
-        x0 = random() * (x0b[1] - x0b[0]) + x0b[0]
-        y0 = random() * (y0b[1] - y0b[0]) + y0b[0]
-        vx0 = random() * (vx0b[1] - vx0b[0]) + vx0b[0]
-        vy0 = random() * (vy0b[1] - vy0b[0]) + vy0b[0]
-        m0 = random() * (m0b[1] - m0b[0]) + m0b[0]
+        x0 = secrets.SystemRandom().random() * (x0b[1] - x0b[0]) + x0b[0]
+        y0 = secrets.SystemRandom().random() * (y0b[1] - y0b[0]) + y0b[0]
+        vx0 = secrets.SystemRandom().random() * (vx0b[1] - vx0b[0]) + vx0b[0]
+        vy0 = secrets.SystemRandom().random() * (vy0b[1] - vy0b[0]) + vy0b[0]
+        m0 = secrets.SystemRandom().random() * (m0b[1] - m0b[0]) + m0b[0]
         theta0 = 0.
         omega0 = 0.
 
