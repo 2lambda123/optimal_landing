@@ -15,6 +15,7 @@ from numpy import linspace, vstack, hstack, isnan
 from numpy.linalg import norm
 from copy import deepcopy
 import sys
+import secrets
 
 class rw_landing(base):
     def __init__(
@@ -373,7 +374,6 @@ class rw_landing(base):
 
 if __name__ == "__main__":
     from PyGMO import *
-    from random import random
     algo = algorithm.snopt(400, opt_tol=1e-3, feas_tol=1e-6,   screen_output=True)
     #algo = algorithm.scipy_slsqp(max_iter = 1000,acc = 1E-8,epsilon = 1.49e-08, screen_output = True)
     algo.screen_output = True
@@ -385,12 +385,12 @@ if __name__ == "__main__":
     y0b = [500, 2000]
 
     # Pinpoint
-    x0 = random() * (x0b[1] - x0b[0]) + x0b[0]
-    y0 = random() * (y0b[1] - y0b[0]) + y0b[0]
-    m0 = random() * (12000. - 8000.) + 8000.
-    vx0 = random() * (vx0b[1] - vx0b[0]) + vx0b[0]
-    vy0 = random() * (vy0b[1] - vy0b[0]) + vy0b[0]
-    theta0 = random() * (pi/20 + pi/20) - pi/20
+    x0 = secrets.SystemRandom().random() * (x0b[1] - x0b[0]) + x0b[0]
+    y0 = secrets.SystemRandom().random() * (y0b[1] - y0b[0]) + y0b[0]
+    m0 = secrets.SystemRandom().random() * (12000. - 8000.) + 8000.
+    vx0 = secrets.SystemRandom().random() * (vx0b[1] - vx0b[0]) + vx0b[0]
+    vy0 = secrets.SystemRandom().random() * (vy0b[1] - vy0b[0]) + vy0b[0]
+    theta0 = secrets.SystemRandom().random() * (pi/20 + pi/20) - pi/20
 
     state0 = [x0, y0, vx0, vy0, theta0, m0]
     print('State: ', state0)

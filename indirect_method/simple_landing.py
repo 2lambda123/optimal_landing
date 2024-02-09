@@ -16,6 +16,7 @@ from copy import deepcopy
 import sys
 
 import numpy as np
+import secrets
 
 class simple_landing(base):
     def __init__(
@@ -342,7 +343,6 @@ class simple_landing(base):
 
 if __name__ == "__main__":
     from PyGMO import *
-    from random import random
 
     # Use SNOPT if possible
     algo = algorithm.snopt(200, opt_tol=1e-5, feas_tol=1e-6)
@@ -358,11 +358,11 @@ if __name__ == "__main__":
     vy0b = [-30, 10]
     m0b =  [8000, 12000]
 
-    x0 = random() * (x0b[1] - x0b[0]) + x0b[0]
-    y0 = random() * (y0b[1] - y0b[0]) + y0b[0]
-    vx0 = random() * (vx0b[1] - vx0b[0]) + vx0b[0]
-    vy0 = random() * (vy0b[1] - vy0b[0]) + vy0b[0]
-    m0 = random() * (m0b[1] - m0b[0]) + m0b[0]
+    x0 = secrets.SystemRandom().random() * (x0b[1] - x0b[0]) + x0b[0]
+    y0 = secrets.SystemRandom().random() * (y0b[1] - y0b[0]) + y0b[0]
+    vx0 = secrets.SystemRandom().random() * (vx0b[1] - vx0b[0]) + vx0b[0]
+    vy0 = secrets.SystemRandom().random() * (vy0b[1] - vy0b[0]) + vy0b[0]
+    m0 = secrets.SystemRandom().random() * (m0b[1] - m0b[0]) + m0b[0]
     state0 = [x0, y0, vx0, vy0, m0]
 
     # We start solving the Quadratic Control
