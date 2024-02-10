@@ -74,9 +74,32 @@ class simple_landing(base):
         self.homotopy = homotopy
 
     def _objfun_impl(self, x):
+        """"Returns a tuple with a single element of 1.0, indicating successful constraint satisfaction. No objective function is used in this function."
+        Parameters:
+            - self (object): The object calling the function.
+            - x (any): The input value to be processed.
+        Returns:
+            - tuple: A tuple with a single element of 1.0, indicating successful constraint satisfaction.
+        Processing Logic:
+            - No objective function is used.
+            - Only returns a tuple with a single element.
+            - The element is always 1.0.
+            - Used for constraint satisfaction."""
+        
         return(1.,) # constraint satisfaction, no objfun
 
     def _compute_constraints_impl(self, x):
+        """Computes the equality constraints for the forward shooting method.
+        Parameters:
+            - x (list): List of initial conditions for the forward shooting method.
+        Returns:
+            - ceq (list): List of equality constraints for the forward shooting method.
+        Processing Logic:
+            - Performs one forward shooting.
+            - Assembles the equality constraint vector.
+            - Handles different conditions for pinpoint landing or transversality.
+            - Ensures the Hamiltonian is 0 for a free time problem."""
+        
         # Perform one forward shooting
         xf, info = self._shoot(x)
 
@@ -104,6 +127,8 @@ class simple_landing(base):
         return ceq
 
     def _hamiltonian(self, full_state):
+        """"""
+        
         state = full_state[:5]
         costate = full_state[5:]
 
@@ -123,6 +148,8 @@ class simple_landing(base):
         return H
 
     def _cost(self,state, controls):
+        """"""
+        
         c1 = self.c1
         c2 = self.c2
         u, stheta, ctheta = controls
@@ -131,6 +158,8 @@ class simple_landing(base):
         return retval
 
     def _eom_state(self, state, controls):
+        """"""
+        
         # Renaming variables
         x,y,vx,vy,m = state
         c1 = self.c1
@@ -147,6 +176,8 @@ class simple_landing(base):
         return [dx, dy, dvx, dvy, dm]
 
     def _eom_costate(self, full_state, controls):
+        """"""
+        
         # Renaming variables
         x,y,vx,vy,m,lx,ly,lvx,lvy,lm = full_state
         c1 = self.c1
@@ -163,6 +194,8 @@ class simple_landing(base):
         return [dlx, dly, dlvx, dlvy, dlm]
 
     def _pontryagin_minimum_principle(self, full_state):
+        """"""
+        
         # Renaming variables
         c1 = self.c1
         c2 = self.c2
@@ -186,6 +219,8 @@ class simple_landing(base):
         return [u, stheta, ctheta]
 
     def _eom(self, full_state, t):
+        """"""
+        
         # Applying Pontryagin minimum principle
         state = full_state[:5]
         controls = self._pontryagin_minimum_principle(full_state)
@@ -196,16 +231,22 @@ class simple_landing(base):
         return dstate + dcostate
 
     def _shoot(self, x):
+        """"""
+        
         # Numerical Integration
         xf, info = odeint(lambda a,b: self._eom(a,b), self.state0 + list(x[:-1]), linspace(0, x[-1],100), rtol=1e-13, atol=1e-13, full_output=1, mxstep=2000)
         return xf, info
 
     def _simulate(self, x, tspan):
+        """"""
+        
         # Numerical Integration
         xf, info = odeint(lambda a,b: self._eom(a,b), self.state0 + list(x[:-1]), tspan, rtol=1e-13, atol=1e-13, full_output=1, mxstep=2000)
         return xf, info
 
     def _non_dim(self, state):
+        """"""
+        
         xnd = deepcopy(state)
         xnd[0] /= self.R
         xnd[1] /= self.R
@@ -215,6 +256,8 @@ class simple_landing(base):
         return xnd
 
     def _dim_back(self, state):
+        """"""
+        
         xd = deepcopy(state)
         xd[0] *= self.R
         xd[1] *= self.R
@@ -224,6 +267,8 @@ class simple_landing(base):
         return xd
 
     def plot(self, x):
+        """"""
+        
         import matplotlib as mpl
         from mpl_toolkits.mplot3d import Axes3D
         import matplotlib.pyplot as plt
@@ -283,6 +328,8 @@ class simple_landing(base):
         return axarr
 
     def human_readable_extra(self):
+        """"""
+        
         s = "\n\tDimensional inputs:\n"
         s = s + "\tStarting state: " + str(self.state0_input) + "\n"
         s = s + "\tTarget state: " + str(self.statet_input) + "\n"
@@ -303,6 +350,8 @@ class simple_landing(base):
 
 
     def produce_data(self, x, npoints):
+        """"""
+        
 
         # Producing the data
         tspan = linspace(0, x[-1], 100)
