@@ -22,6 +22,24 @@ import secrets
 
 
 def solve(problem, state0, homotopy=0, algo=None,  x=None, display=True):
+ """Solve the given problem using the specified algorithm and initial state, and return the optimal solution and its feasibility.
+ Parameters:
+     - problem (class): The problem to be solved.
+     - state0 (array): The initial state for the problem.
+     - homotopy (float): The homotopy parameter for the problem, default is 0.
+     - algo (class): The algorithm to be used for solving the problem, default is None.
+     - x (array): The initial guess for the optimal solution, default is None.
+     - display (bool): Whether or not to display the results, default is True.
+ Returns:
+     - dict: A dictionary containing the optimal solution, the problem, and its feasibility.
+ Processing Logic:
+     - Use SNOPT as the default algorithm if none is specified.
+     - If no initial guess is provided, use a population of size 1.
+     - If the initial guess is provided, use a population of size 1 and push the initial guess to it.
+     - If the initial guess is not feasible and its norm is less than 1e-2, try evolving the population twice.
+     - If the algorithm fails, set the feasibility to False.
+     - Display the results if display is set to True."""
+ 
 #    algo = algorithm.scipy_slsqp(max_iter=30, acc=1E-4, epsilon=1e-6,
  #                                    screen_output=False)
     if not algo:
@@ -79,6 +97,26 @@ def solve(problem, state0, homotopy=0, algo=None,  x=None, display=True):
 
 def homotopy_path(problem, state0, algo=None, start=(0, None), h_min=1e-4,
                   h_max=0.5, h=0.1, display=True):
+    """Homotopy path solver for a given problem, state0, and optional algorithm. Returns the solution and the alpha value at which the homotopy path was stopped.
+    Parameters:
+        - problem (object): The problem to be solved.
+        - state0 (array): The initial state for the problem.
+        - algo (function, optional): The algorithm to be used for solving the problem. Defaults to None.
+        - start (tuple, optional): A tuple containing the starting alpha value and the initial x value. Defaults to (0, None).
+        - h_min (float, optional): The minimum step size for the homotopy path. Defaults to 1e-4.
+        - h_max (float, optional): The maximum step size for the homotopy path. Defaults to 0.5.
+        - h (float, optional): The initial step size for the homotopy path. Defaults to 0.1.
+        - display (bool, optional): Whether or not to display progress and results. Defaults to True.
+    Returns:
+        - sol (dict): A dictionary containing the solution to the problem.
+        - alpha (float): The alpha value at which the homotopy path was stopped.
+    Processing Logic:
+        - Solves the given problem using the provided algorithm and starting state.
+        - If the solution is feasible, the homotopy path is continued with an increased step size.
+        - If the solution is not feasible, the step size is decreased and the homotopy path is continued.
+        - The homotopy path is stopped when the step size reaches the minimum value or the alpha value reaches 1.
+        - The final solution and alpha value are returned."""
+    
     
     sol = solve(problem, state0, start[0], algo, x=start[1], display=display)
 #    sol = solve(problem, state0, start[0], algo, x=ini_x, display=display)
@@ -136,6 +174,17 @@ def homotopy_path(problem, state0, algo=None, start=(0, None), h_min=1e-4,
 
 
 def random_state(ranges):
+    """Generates a list of random numbers within given ranges.
+    Parameters:
+        - ranges (list): List of tuples representing the range of values for each random number.
+    Returns:
+        - state (list): List of randomly generated numbers within the given ranges.
+    Processing Logic:
+        - Uses secrets.SystemRandom() to generate cryptographically secure random numbers.
+        - Calculates random number by multiplying the difference between the range's upper and lower bound by a random number between 0 and 1, and then adding the lower bound.
+        - Appends each generated number to the state list.
+        - Returns the state list."""
+    
     state = []
     for r in ranges:
         var = secrets.SystemRandom().random() * (r[1] - r[0]) + r[0]
@@ -147,6 +196,8 @@ def random_walk(problem, state0, bounds, walk_length=300, algo=None,
                 walk_stop_when_fail=False, initial_x='homotopy',
                 state_step=0.02, h_min=1e-4, h_max=0.5, h=0.1, display=True,
                 ini_trials=1, walk_bounds=None):
+    """"""
+    
 
     if not walk_bounds:
         walk_bounds = bounds
@@ -217,6 +268,8 @@ def random_walk(problem, state0, bounds, walk_length=300, algo=None,
 def random_walk_h0(problem, state0, bounds, walk_length=300, algo=None,
                    walk_stop_when_fail=False, state_step=0.02, display=True,
                    ini_trials=1, walk_bounds=None, initial_random_walk=None):
+    """"""
+    
     if not walk_bounds:
         walk_bounds = bounds
 
@@ -272,6 +325,8 @@ def generate_random_walks(problem, trajs_n, bounds, th_id=0, dir='data',
                           stop_when_fail=False, display=True,
                           initial_random_walk='homotopy', walk_bounds=None,
                           qc=False):
+    """"""
+    
 
     curr_trajs = 0
     walk_id = 0
@@ -322,6 +377,8 @@ def run_multithread(problem, n_trajs, n_threads, bounds, dir='data',
                     h=0.1, walk_stop_when_fail=False, display=True,
                     initial_random_walk='homotopy', algo=None,
                     walk_bounds=None, qc=False):
+    """"""
+    
 
     samples_per_thread = n_trajs/n_threads
 

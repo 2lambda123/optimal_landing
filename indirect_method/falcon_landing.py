@@ -79,9 +79,35 @@ class tv_landing(base):
         self.homotopy = homotopy
 
     def _objfun_impl(self, x):
+        """"Returns a tuple of one element, representing the constraint satisfaction value.
+        Parameters:
+            - x (type): The input to the function.
+        Returns:
+            - tuple: A tuple containing one element, representing the constraint satisfaction value.
+        Processing Logic:
+            - Returns a tuple of one element.
+            - Represents the constraint satisfaction value.
+            - No objective function is used.
+            - Only input x is used.""""
+        
         return(1.,) # constraint satisfaction, no objfun
 
     def _compute_constraints_impl(self, x):
+        """Computes the equality constraints for the forward shooting problem.
+        Parameters:
+            - x (list): List of initial conditions for the forward shooting problem.
+        Returns:
+            - ceq (list): List of equality constraints for the forward shooting problem.
+        Processing Logic:
+            - Perform one forward shooting.
+            - Assemble the equality constraint vector.
+            - Apply final conditions.
+            - Apply transversality conditions.
+            - Apply Hamiltonian condition.
+        Example:
+            _compute_constraints_impl([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+            # Returns [0, 0, 0, 0, 0, 0, 0, 0]"""
+        
         # Perform one forward shooting
         xf, info = self._shoot(x)
 
@@ -111,6 +137,19 @@ class tv_landing(base):
         return ceq
 
     def _hamiltonian(self, full_state):
+        """Calculates the Hamiltonian of the given full state, using the Pontryagin minimum principle and the integral cost function.
+        Parameters:
+            - full_state (list): The full state vector, consisting of the state and costate vectors.
+        Returns:
+            - H (float): The Hamiltonian value.
+        Processing Logic:
+            - Split the full state into state and costate vectors.
+            - Use the Pontryagin minimum principle to calculate the controls.
+            - Calculate the R.H.S. of the state equations of motion.
+            - Assemble the Hamiltonian by multiplying each costate element with its corresponding state equation of motion element.
+            - Add the integral cost function to the Hamiltonian.
+            - Return the final Hamiltonian value."""
+        
         state = full_state[:7]
         costate = full_state[7:]
 
@@ -130,6 +169,17 @@ class tv_landing(base):
         return H
 
     def _cost(self,state, controls):
+        """"Calculates the cost of a given state and controls using the provided coefficients. Returns the calculated cost value.
+        Parameters:
+            - state (type): The state of the system.
+            - controls (type): A tuple containing the control values for the system.
+        Returns:
+            - float: The calculated cost value.
+        Processing Logic:
+            - Uses the provided coefficients to calculate the cost.
+            - Uses a homotopy factor to determine the weight of the first term.
+            - The second term is squared to account for a quadratic cost function.""""
+        
         c1 = self.c1
         c2 = self.c2
         c3 = self.c3
@@ -140,6 +190,21 @@ class tv_landing(base):
         return retval
 
     def _eom_state(self, state, controls):
+        """This function calculates the state of the system based on the given state and controls.
+        Parameters:
+            - state (list): List of the current state of the system, containing x, y, vx, vy, theta, omega, and m.
+            - controls (list): List of the current controls of the system, containing u and ut.
+        Returns:
+            - list: List of the updated state of the system, containing dx, dy, dvx, dvy, dtheta, domega, and dm.
+        Processing Logic:
+            - Renames variables for easier understanding.
+            - Calculates tdotit using ut and theta.
+            - Calculates the updated state using the given equations.
+            - Returns the updated state as a list.
+        Example:
+            _eom_state([1, 2, 3, 4, 5, 6, 7], [8, [9, 10]])
+            # Returns [3, -4, 0.375, -8.8, 6, -0.75, -3.2]"""
+        
         # Renaming variables
         x,y,vx,vy,theta,omega,m = state
         g = self.g
@@ -160,6 +225,8 @@ class tv_landing(base):
         return [dx, dy, dvx, dvy, dtheta, domega, dm]
 
     def _eom_costate(self, full_state, controls):
+        """"""
+        
         # Renaming variables
         x,y,vx,vy,theta,omega,m,lx,ly,lvx,lvy,ltheta,lomega,lm = full_state
         c1 = self.c1
@@ -183,6 +250,8 @@ class tv_landing(base):
         return [dlx, dly, dlvx, dlvy, dltheta, dlomega, dlm]
 
     def _pontryagin_minimum_principle(self, full_state):
+        """"""
+        
         # Renaming variables
         x,y,vx,vy,theta,omega,m,lx,ly,lvx,lvy,ltheta,lomega,lm = full_state
         c1 = self.c1
@@ -216,6 +285,8 @@ class tv_landing(base):
         return u, ut
 
     def _eom(self, full_state, t):
+        """"""
+        
         # Applying Pontryagin minimum principle
         state = full_state[:7]
         controls = self._pontryagin_minimum_principle(full_state)
@@ -226,6 +297,8 @@ class tv_landing(base):
         return dstate + dcostate
 
     def _shoot(self, x):
+        """"""
+        
         # Numerical Integration
         xf, info = odeint(lambda a,b: self._eom(a,b), self.state0 + list(x[:-1]), linspace(0, x[-1],1000), rtol=1e-5, atol=1e-5, 
             full_output=1, 
@@ -233,6 +306,8 @@ class tv_landing(base):
         return xf, info
 
     def _simulate(self, x, tspan):
+        """"""
+        
         # Numerical Integration
         print('simulate')
         xf= odeint(lambda a,b: self._eom(a,b), self.state0 + list(x[:-1]), tspan, rtol=1e-6, atol=1e-6, full_output=0, 
@@ -241,6 +316,8 @@ class tv_landing(base):
         return xf, info
 
     def _non_dim(self, state):
+        """"""
+        
         xnd = deepcopy(state)
         xnd[0] /= self.R
         xnd[1] /= self.R
@@ -252,6 +329,8 @@ class tv_landing(base):
         return xnd
 
     def _dim_back(self, state):
+        """"""
+        
         xd = deepcopy(state)
         xd[0] *= self.R
         xd[1] *= self.R
@@ -263,6 +342,8 @@ class tv_landing(base):
         return xd
 
     def plot(self, x):
+        """"""
+        
         import matplotlib as mpl
         from mpl_toolkits.mplot3d import Axes3D
         import matplotlib.pyplot as plt
@@ -329,6 +410,8 @@ class tv_landing(base):
         return axarr
 
     def human_readable_extra(self):
+        """"""
+        
         s = "\n\tDimensional inputs:\n"
         s = s + "\tStarting state: " + str(self.state0_input) + "\n"
         s = s + "\tTarget state: " + str(self.statet_input) + "\n"
@@ -348,6 +431,8 @@ class tv_landing(base):
 
 
     def produce_data(self, x, npoints):
+        """"""
+        
 
         # Producing the data
         tspan = linspace(0, x[-1], npoints)

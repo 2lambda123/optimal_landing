@@ -76,9 +76,34 @@ class rw_landing(base):
         self.alpha = 1./150.
 
     def _objfun_impl(self, x):
+        """"Calculates the objective function value for a given input and returns it. Does not consider any constraints.
+        Parameters:
+            - x (type): Input value for the objective function.
+        Returns:
+            - float: Objective function value for the given input.
+        Processing Logic:
+            - Returns a constant value of 1.
+            - No constraints are considered.
+            - No additional parameters are used.""""
+        
         return(1.,) # constraint satisfaction, no objfun
 
     def _compute_constraints_impl(self, x):
+        """"Computes the equality constraints for the optimal control problem using forward shooting method.
+        Parameters:
+            - x (list): List of initial guesses for the state and control variables.
+        Returns:
+            - ceq (list): List of equality constraints for the optimal control problem.
+        Processing Logic:
+            - Performs one forward shooting.
+            - Assembles the equality constraint vector.
+            - Calculates the final conditions.
+            - Computes the transversality condition on mass.
+            - Ensures that the Hamiltonian is 0 for a free time problem.
+        Example:
+            _compute_constraints_impl([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            # Output: [0, 0, 0, 0, 0, 0, 0]""""
+        
         # Perform one forward shooting
         xf, info = self._shoot(x)
 
@@ -107,6 +132,8 @@ class rw_landing(base):
         return ceq
 
     def _hamiltonian(self, full_state):
+        """"""
+        
         state = full_state[:6]
         costate = full_state[6:]
 
@@ -126,6 +153,8 @@ class rw_landing(base):
         return H
 
     def _cost(self,state, controls):
+        """"""
+        
         c1 = self.c1
         c2 = self.c2
         c3 = self.c3
@@ -139,6 +168,8 @@ class rw_landing(base):
         return retval
 
     def _eom_state(self, state, controls):
+        """"""
+        
         # Renaming variables
         x,y,vx,vy,theta,m = state
         g = self.g
@@ -157,6 +188,8 @@ class rw_landing(base):
         return [dx, dy, dvx, dvy, dtheta, dm]
 
     def _eom_costate(self, full_state, controls):
+        """"""
+        
         # Renaming variables
         x,y,vx,vy,theta,m,lx,ly,lvx,lvy,ltheta,lm = full_state
         c1 = self.c1
@@ -178,6 +211,8 @@ class rw_landing(base):
         return [dlx, dly, dlvx, dlvy, dltheta, dlm]
 
     def _pontryagin_minimum_principle(self, full_state):
+        """"""
+        
         # Renaming variables
         x, y, vx, vy, theta, m, lx, ly, lvx, lvy, ltheta, lm = full_state
         c1 = self.c1
@@ -205,6 +240,8 @@ class rw_landing(base):
         return u1, u2
 
     def _eom(self, full_state, t):
+        """"""
+        
         # Applying Pontryagin minimum principle
         state = full_state[:6]
         controls = self._pontryagin_minimum_principle(full_state)
@@ -215,17 +252,23 @@ class rw_landing(base):
         return dstate + dcostate
 
     def _shoot(self, x):
+        """"""
+        
         # Numerical Integration
 
         xf, info = odeint(lambda a,b: self._eom(a,b), self.state0 + list(x[:-1]), linspace(0, x[-1],100), rtol=1e-13, atol=1e-13, full_output=1, mxstep=2000)
         return xf, info
 
     def _simulate(self, x, tspan):
+        """"""
+        
         # Numerical Integration
         xf, info = odeint(lambda a,b: self._eom(a,b), self.state0 + list(x[:-1]), tspan, rtol=1e-13, atol=1e-13, full_output=1, mxstep=2000)
         return xf, info
 
     def _non_dim(self, state):
+        """"""
+        
         xnd = deepcopy(state)
         xnd[0] /= self.R
         xnd[1] /= self.R
@@ -236,6 +279,8 @@ class rw_landing(base):
         return xnd
 
     def _dim_back(self, state):
+        """"""
+        
         xd = deepcopy(state)
         xd[0] *= self.R
         xd[1] *= self.R
@@ -246,6 +291,8 @@ class rw_landing(base):
         return xd
 
     def plot(self, x):
+        """"""
+        
         import matplotlib as mpl
         from mpl_toolkits.mplot3d import Axes3D
         import matplotlib.pyplot as plt
@@ -311,6 +358,8 @@ class rw_landing(base):
         return axarr
 
     def human_readable_extra(self):
+        """"""
+        
         s = "\n\tDimensional inputs:\n"
         s = s + "\tStarting state: " + str(self.state0_input) + "\n"
         s = s + "\tTarget state: " + str(self.statet_input) + "\n"
@@ -329,6 +378,8 @@ class rw_landing(base):
         return s
 
     def produce_data(self, x, npoints):
+        """"""
+        
 
         # Producing the data
         tspan = linspace(0, x[-1], npoints)
